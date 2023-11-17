@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:health_hub_user_app/main.dart";
 
 class PillDayCard extends StatelessWidget {
   final Color backgroundColor;
