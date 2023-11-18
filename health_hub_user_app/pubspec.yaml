@@ -38,6 +38,10 @@ dependencies:
   google_nav_bar: ^5.0.6
   flutter_slidable: ^3.0.1
   firebase_core: ^2.22.0
+  material_symbols_icons: 4.2709.0
+  tflite_flutter: ^0.9.0
+  tflite_flutter_helper: ^0.3.1
+  image_picker: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -77,6 +81,9 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   fonts:
+    # - family: CustomIcons
+    #   fonts:
+    #     - asset: fonts/CustomIcons.ttf
     - family: Raleway
       fonts:
         - asset: fonts/Raleway-VariableFont_wght.ttf
