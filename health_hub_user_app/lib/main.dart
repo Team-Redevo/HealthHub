@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/homepage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:health_hub_user_app/prescription_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'firebase_options.dart';
 
@@ -22,6 +24,9 @@ const Color cardBackgroundColor = Color.fromARGB(255, 239, 240, 244);
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+
   // Check if user is logged in and choose the page
   int page = 0;
 

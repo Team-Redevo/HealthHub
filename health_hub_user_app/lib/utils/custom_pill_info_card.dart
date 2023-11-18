@@ -1,9 +1,17 @@
 import "package:flutter/material.dart";
 import "package:flutter_slidable/flutter_slidable.dart";
 import "package:health_hub_user_app/main.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PillInfoCard extends StatelessWidget {
-  PillInfoCard();
+  final String pillName;
+  final String pillDosage;
+  final String pillFrequency;
+  final String period;
+  final String id;
+  PillInfoCard(this.pillName, this.pillDosage, this.pillFrequency, this.period, this.id);
+
+  FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +24,17 @@ class PillInfoCard extends StatelessWidget {
             SlidableAction(
               borderRadius: BorderRadius.circular(23),
               onPressed: (context) {
-                // Delete the pill
+                print("deleter started with id: ${id}");
+                // connect to db and delete the pill
+                firestoreInstance
+                  .collection("user_id")
+                  .where('prescriptions.id', arrayContains: id.toString())
+                  .get()
+                  .then((querySnapshot) {
+                querySnapshot.docs.forEach((result) {
+                  print(result.data());
+                });
+              });
               },
               backgroundColor: primaryColor,
               foregroundColor: Colors.white,
@@ -26,8 +44,6 @@ class PillInfoCard extends StatelessWidget {
           ]),
       child: InkWell(
         onTap: () {
-          // TODO: https://github.com/letsar/flutter_slidable/wiki/FAQ
-          // Code opening the Slidable by taping on the card
         },
         child: Container(
           height: 95,
@@ -63,7 +79,7 @@ class PillInfoCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "1 pill, once per day",
+                      "${pillFrequency} pills per day",
                       style: TextStyle(
                         color: primaryTextColor,
                         fontSize: 15,
@@ -71,7 +87,7 @@ class PillInfoCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "Probiotic, 250mg",
+                      "${pillName}, ${pillDosage}",
                       style: TextStyle(
                         color: primaryTextColor,
                         fontSize: 20,
