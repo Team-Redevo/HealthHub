@@ -3,6 +3,8 @@ import 'package:health_hub_user_app/homepage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:health_hub_user_app/prescription_page.dart';
 
+import 'lab_page.dart';
+
 // Colors
 const Color primaryColor = Color.fromRGBO(121, 198, 152, 1);
 const Color secondaryColor = Color.fromRGBO(69, 160, 150, 1);
@@ -55,6 +57,7 @@ class _MyAppPageState extends State<MainPage> {
     _pages = [
       HomePage(),
       PrescriptionPage(),
+      LabPage(),
     ];
   }
 
