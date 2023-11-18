@@ -1,69 +1,52 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health_hub_lifesaver_app/firebase_options.dart';
+import 'package:nfc_manager/nfc_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return const MaterialApp(
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool isNFCInfoVisible = false;
-  bool isNFCDataAvailable =
-      false; // Set this to true if NFC data is available or false if it is not available
+  Map<String, dynamic> nfcData = {"last_name": "No NFC tag scanned yet"};
+  bool isReading = false; // Flag to track NFC reading status
+
+  @override
+  void dispose() {
+    // Stop the NFC session if it's still active when the widget is disposed.
+    if (isReading) {
+      NfcManager.instance.stopSession();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -89,9 +72,7 @@ class _MyHomePageState extends State<MyHomePage> {
               children: [
                 InkWell(
                   onTap: () {
-                    setState(() {
-                      isNFCInfoVisible = !isNFCInfoVisible;
-                    });
+                    _toggleNFCReading(); // Corrected to call the function
                   },
                   customBorder: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(35),
@@ -115,13 +96,15 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(
+                          Padding(
+                            padding: const EdgeInsets.only(
                               top: 15,
                             ),
                             child: Text(
-                              'Scan an NFC Tag',
-                              style: TextStyle(
+                              isReading
+                                  ? 'Stop NFC Reading'
+                                  : 'Start NFC Reading',
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
@@ -139,14 +122,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ),
                 ),
-                Visibility(
-                  visible: isNFCInfoVisible,
-                  child: Container(
-                    margin: const EdgeInsets.only(top: 35),
-                    padding:
-                        const EdgeInsets.only(left: 20, right: 20, top: 10),
-                    width: 350, // Increase width here
-                    height: 400, // Increase height here
+                // show the NFC data here in a box once data is read
+                if (nfcData["last_name"] != "No NFC tag scanned yet" ||
+                    nfcData["last_name"] != "NFC reading stopped")
+                  Container(
+                    margin: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(35),
@@ -159,58 +140,142 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      children: [
-                        const Align(
-                          alignment: Alignment.topCenter,
-                          child: Text(
-                            'User information',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: 'Raleway',
-                            ),
-                          ),
-                        ),
-                        Visibility(
-                          visible:
-                              !isNFCDataAvailable, // Check if NFC data is available
-                          child: Column(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          // Name
+                          Row(
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 80),
-                                child: Image.asset(
-                                  'assets/danger_icon.png', // Replace with your image asset path
-                                  width: 100,
-                                  height: 100,
-                                ),
-                              ),
-                              const Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: Text(
-                                  'No information found',
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    fontFamily: 'Raleway',
-                                  ),
+                              Icon(Icons.person,
+                                  color:
+                                      const Color.fromARGB(255, 121, 198, 152),
+                                  size: 30),
+                              SizedBox(width: 5),
+                              Text(
+                                "${nfcData["first_name"]} ${nfcData["last_name"]}",
+                                style: TextStyle(
+                                  fontSize: 22,
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        // Add additional widgets for NFC information display when available
-                      ],
+                          SizedBox(height: 10),
+                          // Blood type
+                          Row(
+                            children: [
+                              Icon(Icons.bloodtype,
+                                  color:
+                                      const Color.fromARGB(255, 121, 198, 152),
+                                  size: 30),
+                              SizedBox(width: 5),
+                              Text(
+                                '${nfcData["blood_type"]}',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          // Allergies
+                          Row(
+                            children: [
+                              Icon(Icons.masks,
+                                  color:
+                                      const Color.fromARGB(255, 121, 198, 152),
+                                  size: 30),
+                              SizedBox(width: 5),
+                              Text(
+                                '${nfcData["id_allergies"]}',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 10),
+                          // Drug contraindications
+                          Row(
+                            children: [
+                              Icon(Icons.vaccines,
+                                  color:
+                                      const Color.fromARGB(255, 121, 198, 152),
+                                  size: 30),
+                              SizedBox(width: 5),
+                              Text(
+                                '${nfcData["drugs_contraindications"]}',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _toggleNFCReading() {
+    if (isReading) {
+      // If already reading, stop the NFC session
+      NfcManager.instance.stopSession();
+      setState(() {
+        isReading = false;
+        nfcData["last_name"] = 'NFC reading stopped';
+      });
+    } else {
+      // If not reading, start the NFC session
+      _startNFCReading();
+    }
+  }
+
+  void _startNFCReading() async {
+    try {
+      bool isAvailable = await NfcManager.instance.isAvailable();
+      if (isAvailable) {
+        NfcManager.instance.startSession(
+          onDiscovered: (NfcTag tag) async {
+            FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+            // get id from tag
+            String tagId = json.encode(tag.data);
+            tagId = ((tagId.split('{')[2]).split(':')[1]).split(']')[0];
+            print("TagID:" + tagId);
+
+            firestoreInstance
+                .collection("user_id")
+                .where('tag_id', isEqualTo: tagId + "]")
+                .get()
+                .then((querySnapshot) {
+              querySnapshot.docs.forEach((result) {
+                print(result.data());
+                setState(() {
+                  nfcData = jsonDecode(jsonEncode(result.data()));
+                  print(nfcData);
+                });
+              });
+            });
+          },
+        );
+        setState(() {
+          isReading = true;
+        });
+      } else {
+        setState(() {
+          nfcData["last_name"] = 'NFC not available.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        nfcData["last_name"] = 'Error reading NFC: $e';
+      });
+    }
   }
 }
