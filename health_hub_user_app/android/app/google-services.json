@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1086792029628",
+    "project_id": "health-hub-dea1e",
+    "storage_bucket": "health-hub-dea1e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086792029628:android:ded55f456a56ab0aa807b9",
+        "android_client_info": {
+          "package_name": "com.example.health_hub_lifesaver_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOzA2JnldHkpUkb2oUTqLkuBG_zIva5AU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1086792029628:android:dfff0c0cf86f25a1a807b9",
+        "android_client_info": {
+          "package_name": "com.example.health_hub_user_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOzA2JnldHkpUkb2oUTqLkuBG_zIva5AU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
