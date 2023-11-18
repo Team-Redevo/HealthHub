@@ -11,7 +11,7 @@ class PillDayCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(right: 10),
       height: 80,
-      width: 75,
+      width: 80,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(23),

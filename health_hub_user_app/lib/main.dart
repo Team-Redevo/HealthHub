@@ -72,9 +72,9 @@ class _MyAppPageState extends State<MainPage> {
           decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
-                  color: primaryTextColor.withAlpha(50),
+                  color: primaryTextColor.withAlpha(30),
                   spreadRadius: 0.25,
-                  blurRadius: 20,
+                  blurRadius: 10,
                 )
               ],
               color: Colors.white,
@@ -97,6 +97,8 @@ class _MyAppPageState extends State<MainPage> {
                   fontWeight: FontWeight.w600,
                   color: primaryColor,
                 ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
               ),
               GButton(
                 icon: Icons.receipt_long,
@@ -106,6 +108,8 @@ class _MyAppPageState extends State<MainPage> {
                   fontWeight: FontWeight.w600,
                   color: primaryColor,
                 ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
               ),
               GButton(
                 icon: Icons.biotech,
@@ -115,6 +119,8 @@ class _MyAppPageState extends State<MainPage> {
                   fontWeight: FontWeight.w600,
                   color: primaryColor,
                 ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
               ),
               GButton(
                 icon: Icons.account_circle,
@@ -124,6 +130,8 @@ class _MyAppPageState extends State<MainPage> {
                   fontWeight: FontWeight.w600,
                   color: primaryColor,
                 ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
               ),
             ],
             selectedIndex: selectedIndex,
@@ -151,7 +159,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'HealthHub',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
       navigatorKey: navigatorKey,

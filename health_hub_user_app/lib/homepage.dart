@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:health_hub_user_app/utils/custom_prescription_info_card.dart';
 import 'main.dart';
 import 'utils/custom_pill_day_card.dart';
 import 'utils/custom_pill_info_card.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({
@@ -35,6 +37,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.only(top: 50, left: 30, right: 30),
         child: Column(
@@ -62,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                 // TO DO: Get current and following days of the week
                 // List of days
                 SizedBox(
-                  height: 90,
+                  height: 100,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     shrinkWrap: true,
@@ -76,6 +79,9 @@ class _HomePageState extends State<HomePage> {
                       }
                     },
                   ),
+                ),
+                SizedBox(
+                  height: 10,
                 ),
                 // TO DO: Get info about pill from database
                 // List of pills that need to be taken that day
@@ -96,9 +102,8 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-
                 Padding(
-                  padding: const EdgeInsets.only(top: 25, bottom: 20),
+                  padding: const EdgeInsets.only(top: 30, bottom: 25),
                   child: Center(
                     child: SizedBox(
                       height: 1,
@@ -111,39 +116,13 @@ class _HomePageState extends State<HomePage> {
                 Text('Current prescription',
                     style: TextStyle(color: primaryTextColor, fontSize: 20)),
                 SizedBox(
-                  height: 10,
+                  height: 15,
                 ),
-                Container(
-                  height: 95,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(23),
-                    color: cardBackgroundColor,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20),
-                    child: Row(
-                      children: [
-                        Container(
-                          height: 75,
-                          width: 75,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(23),
-                            color: Colors.white,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Icon(Icons.insert_drive_file,
-                                color: primaryColor, size: 50),
-                          ),
-                        ),
-                        Column(
-                          children: [],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
+                InkWell(
+                    onTap: () {
+                      // TO DO: Navigate to prescription page
+                    },
+                    child: PrescriptionInfoCard()),
               ],
             ),
           ],
