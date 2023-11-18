@@ -1,7 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health_hub_lifesaver_app/firebase_options.dart';
 import 'package:nfc_manager/nfc_manager.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
   runApp(const MyApp());
 }
 
@@ -141,8 +147,19 @@ class _MyHomePageState extends State<MyHomePage> {
       if (isAvailable) {
         NfcManager.instance.startSession(
           onDiscovered: (NfcTag tag) async {
-            setState(() {
-              nfcData = 'NFC Tag Detected: ${tag.data}';
+            FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
+            // get id from tag
+            String tagId = json.encode(tag.data);
+            tagId = ((tagId.split('{')[2]).split(':')[1]).split(']')[0];
+            print("TagID:"+tagId);
+            
+            firestoreInstance.collection("user_id").where('tag_id', isEqualTo: tagId + "]").get().then((querySnapshot) {
+              querySnapshot.docs.forEach((result) {
+                print(result.data());
+                setState(() {
+                  nfcData = 'NFC Tag Detected: ${result.data()}';
+                });
+              });
             });
           },
         );
