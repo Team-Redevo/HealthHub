@@ -168,37 +168,16 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       }
-
                       return Text("loading");
                     },
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 30, bottom: 25),
-                    child: Center(
-                      child: SizedBox(
-                        height: 1,
-                        width: 250,
-                        child: Container(
-                            decoration: BoxDecoration(color: secondaryColor)),
-                      ),
-                    ),
-                  ),
-                  Text('Current prescription',
-                      style: TextStyle(color: primaryTextColor, fontSize: 20)),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  InkWell(
-                      onTap: () {
-                        // TO DO: Navigate to prescription page
-                      },
-                      child: PrescriptionInfoCard()),
-                ],
-              ),
-            ],
-          ),
+                  PrescriptionInfoCard("start", "stop", ["prescription"]),
+              ],
+            ),
+          ],
         ),
       ),
+    ),
     );
   }
 }
