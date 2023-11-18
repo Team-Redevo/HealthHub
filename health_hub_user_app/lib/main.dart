@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/homepage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:health_hub_user_app/prescription_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+
 import 'firebase_options.dart';
 
 // Colors
@@ -25,6 +29,11 @@ Future<void> main() async {
 
   // Check if user is logged in and choose the page
   int page = 0;
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
 
   runApp(App(pageId: page));
 }
@@ -62,6 +71,8 @@ class _MyAppPageState extends State<MainPage> {
       PrescriptionPage(),
     ];
   }
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   @override
   Widget build(BuildContext context) {
