@@ -118,7 +118,27 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              Text(nfcData), // Display NFC data here
+                // show the NFC data here in a box once data is read
+                if (nfcData != "No NFC tag scanned yet")
+                  Container(
+                    margin: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Card(
+                      clipBehavior: Clip.hardEdge,
+                      child: InkWell(
+                        splashColor: Colors.blue.withAlpha(30),
+                        child: SizedBox(
+                          width: 300,
+                          height: 100,
+                          child: Text(nfcData),
+                        ),
+                      ),
+                    ),
+                  ),
             ],
           ),
         ),
@@ -155,9 +175,10 @@ class _MyHomePageState extends State<MyHomePage> {
             
             firestoreInstance.collection("user_id").where('tag_id', isEqualTo: tagId + "]").get().then((querySnapshot) {
               querySnapshot.docs.forEach((result) {
+                var jsonData = jsonDecode(jsonEncode(result.data()));
                 print(result.data());
                 setState(() {
-                  nfcData = 'NFC Tag Detected: ${result.data()}';
+                  nfcData = "${jsonData["blood_type"]} \n${jsonData["last_name"]}  ${jsonData["first_name"]}"; // + "/n" + jsonData["id_allergies"] + "\n" + jsonData["drugs_contraindications"];
                 });
               });
             });
