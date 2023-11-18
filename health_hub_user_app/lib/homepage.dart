@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/utils/custom_prescription_info_card.dart';
 import 'main.dart';
@@ -171,6 +173,12 @@ class _HomePageState extends State<HomePage> {
 
                       return Text("loading");
                     },
+<<<<<<< HEAD
+                    child: PrescriptionInfoCard("start", "stop", ["prescription"])),
+              ],
+            ),
+          ],
+=======
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 30, bottom: 25),
@@ -197,6 +205,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+>>>>>>> origin/4-create-frontend-design-for-user-app
         ),
       ),
     );
