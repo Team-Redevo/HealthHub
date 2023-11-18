@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/utils/custom_prescription_info_card.dart';
 import 'main.dart';
@@ -15,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   @override
   void initState() {
     super.initState();
@@ -122,7 +125,7 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       // TO DO: Navigate to prescription page
                     },
-                    child: PrescriptionInfoCard()),
+                    child: PrescriptionInfoCard("start", "stop", ["prescription"])),
               ],
             ),
           ],
