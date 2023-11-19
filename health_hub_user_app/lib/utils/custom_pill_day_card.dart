@@ -1,0 +1,52 @@
+import "package:flutter/material.dart";
+import 'package:health_hub_user_app/homepage.dart';
+
+class PillDayCard extends StatelessWidget {
+  final Color backgroundColor;
+  final Color textColor;
+  final int dayNr;
+  final String dayName;
+
+  PillDayCard(this.dayNr, this.dayName, this.backgroundColor, this.textColor);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 10),
+        height: 80,
+        width: 80,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(23),
+          color: backgroundColor,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              dayNr.toString(),
+              style: TextStyle(
+                color: textColor,
+                fontSize: 23,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              dayName,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 17,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
