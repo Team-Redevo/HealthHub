@@ -1,6 +1,7 @@
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/material.dart";
 import "package:health_hub_user_app/main.dart";
+import "package:health_hub_user_app/utils/custom_pill_info_card.dart";
 
 class PrescriptionInfoCard extends StatelessWidget {
   final String prescriptionDateStart;
@@ -121,18 +122,11 @@ class PrescriptionInfoCard extends StatelessWidget {
               onTap: () {
                 _showModal(context);
               },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: secondaryTextColor,
-                ),
-                child: const Icon(
+              child: const Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
+                  color: secondaryTextColor,
+                  size: 30, 
+                  ),
             ),
           ],
         ),
@@ -155,27 +149,104 @@ class PrescriptionInfoCard extends StatelessWidget {
             borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
           ),
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Prescription Details',
-                style: TextStyle(
-                  fontSize: 20,  // 30
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.receipt_long,
+                    color: secondaryColor,
+                    size: 24,
+                  ),
+                  Text(
+                    'Prescription Details',
+                    style: TextStyle(
+                      fontSize: 20,  // 30
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 16),
               for (int i = 2; i < prescriptionRow.length; i++)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('SubstanceName: ' + prescriptionRow[i].split(",")[0].toString()),
-                    Text('Miligrams: ' + prescriptionRow[i].split(",")[1].toString()),
-                    Text('Dosage: ' + prescriptionRow[i].split(",")[2].toString()),
-                    Text('Period: ' + prescriptionRow[i].split(",")[3].toString()),
-                    SizedBox(height: 16),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: Container(
+                    height: 95,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(23),
+                      color: cardBackgroundColor,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 75,
+                            width: 75,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(23),
+                              color: Colors.white,
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Image.asset(
+                                "assets/pill_image.png",
+                                width: 50, // Set the desired width
+                                height: 50, // Set the desired height
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 20),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                prescriptionRow[i].split(",")[0].toString(),
+                                style: const TextStyle(
+                                  color: primaryTextColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                prescriptionRow[i].split(",")[1].toString(),
+                                style: const TextStyle(
+                                  color: primaryTextColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                'Dosage: ' + prescriptionRow[i].split(",")[2].toString() + '/day',
+                                style: const TextStyle(
+                                  color: primaryTextColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              Text(
+                                'Period: ' + prescriptionRow[i].split(",")[3].toString() + ' days',
+                                style: const TextStyle(
+                                  color: primaryTextColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),

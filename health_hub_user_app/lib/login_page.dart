@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     FirebaseFirestore.instance
-        .collection('userId')
+        .collection('user_id')
         .doc(userId)
         .update({'is_logged': true});
   }

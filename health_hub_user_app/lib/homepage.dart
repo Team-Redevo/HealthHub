@@ -10,11 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
-  final Map<String, Object?> userData;
-
   const HomePage({
     Key? key,
-    required this.userData,
   }) : super(key: key);
 
   @override
@@ -41,11 +38,11 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome text
-              Text('Welcome, ${widget.userData["first_name"]}!',
+              // welcome text
+              const Text('Welcome, Claudiu!',
                   style: TextStyle(color: primaryTextColor, fontSize: 30)),
               const SizedBox(height: 15),
-              // Pills reminder section
+              // pills reminder section
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -60,7 +57,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(
                     height: 15,
                   ),
-                  // List of days
+                  // list of days
                   SizedBox(
                     height: 100,
                     child: ListView.builder(
@@ -74,12 +71,9 @@ class _HomePageState extends State<HomePage> {
                         var dayNr = futureDate.day;
 
                         // Determine the background and text color based on whether the date matches the selected date
-                        bool isSelectedDate = selectedDate.day == dayNr &&
-                            selectedDate.month == futureDate.month;
-                        var bkColor =
-                            isSelectedDate ? primaryColor : cardBackgroundColor;
-                        var textColor =
-                            isSelectedDate ? Colors.white : primaryTextColor;
+                        bool isSelectedDate = selectedDate.day == dayNr && selectedDate.month == futureDate.month;
+                        var bkColor = isSelectedDate ? primaryColor : cardBackgroundColor;
+                        var textColor = isSelectedDate ? Colors.white : primaryTextColor;
                         return GestureDetector(
                           onTap: () {
                             setState(() {
@@ -126,12 +120,12 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(
                     height: 10,
                   ),
-                  // TO DO: Get info about pill from database
-                  // List of pills that need to be taken that day
+                  // list of pills that need to be taken that day
                   FutureBuilder<DocumentSnapshot>(
                     future: users.doc("1").get(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    builder:
+                        (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+
                       if (snapshot.hasError) {
                         return Text("Something went wrong");
                       }
@@ -141,41 +135,33 @@ class _HomePageState extends State<HomePage> {
                       }
 
                       if (snapshot.connectionState == ConnectionState.done) {
-                        Map<String, dynamic> data =
-                            snapshot.data!.data() as Map<String, dynamic>;
+                        Map<String, dynamic> data = snapshot.data!.data() as Map<String, dynamic>;
                         return SizedBox(
                           child: ListView.builder(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
                             itemCount: data["prescriptions"].length,
                             itemBuilder: (context, index) {
-                              var originalData = data["prescriptions"][index];
-                              data["prescriptions"][index] =
-                                  (data["prescriptions"][index]['prescription']
-                                          .toString())
-                                      .split(";");
-                              var period = data["prescriptions"][index][1];
-                              var prescriptionLimit =
-                                  DateTime.parse(period.toString());
-                              if (prescriptionLimit.isAfter(selectedDate
-                                  .subtract(const Duration(days: 1)))) {
+                              var originalData = data["prescriptions"][index]; // the prescription and the id
+                              String id = data["prescriptions"][index]["id"];
+                              originalData = (originalData["prescription"].toString()).split(";"); // the array with the prescription data (creationDay, lastDay and pills)
+                              var prescriptionLimit = DateTime.parse(originalData[1].toString());
+                              if(prescriptionLimit.isAfter(selectedDate.subtract(const Duration(days:1)))) {
                                 List<Widget> pillInfoCards = [];
-
-                                print(data["prescriptions"][index][1]);
-                                for (int i = 2;
-                                    i < data["prescriptions"][index].length;
-                                    i++) {
-                                  var values = data["prescriptions"][index][i]
-                                      .toString()
-                                      .split(",");
-                                  //data["prescriptions"][index][i] = (data["prescriptions"][index][i]).toString().split(",");
-                                  pillInfoCards.add(PillInfoCard(
-                                    values[0],
-                                    values[1],
-                                    values[2],
-                                    values[3],
-                                    originalData['id'],
-                                  ));
+                                for (int i = 2; i < originalData.length; i++) {
+                                  var currentIntakes = originalData[i].toString().split(",")[4];
+                                  print("currentIntakes: ${currentIntakes}");
+                                  if(DateFormat('d').format(selectedDate.add((Duration(days: int.parse(currentIntakes)+1)))) != DateFormat('d').format(DateTime.now())){
+                                    var values = originalData[i].toString().split(",");
+                                    pillInfoCards.add(PillInfoCard(
+                                      values[0],
+                                      values[1],
+                                      values[2],
+                                      values[3],
+                                      id,
+                                      i,
+                                    ));
+                                  }
                                 }
                                 return Column(
                                   children: pillInfoCards,
@@ -185,12 +171,17 @@ class _HomePageState extends State<HomePage> {
                           ),
                         );
                       }
-                      return Text("loading");
+                      return const Text("loading");
                     },
                   ),
-                ],
-              ),
-            ],
+                  // add space
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  PrescriptionInfoCard("start", "stop", ["data"]),
+              ],
+            ),
+          ],
           ),
         ),
       ),

@@ -9,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:health_hub_user_app/profile_page.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 // Colors
 const Color primaryColor = Color.fromRGBO(121, 198, 152, 1);
@@ -23,8 +24,11 @@ Future<void> main() async {
   // Check if connection is enabled with Firebase Live DB
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseMessaging.instance.setAutoInitEnabled(true);
   // await FirebaseApi().initNotifications();
   // Noti.initialize(flutterLocalNotificationsPlugin);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print("FCMToken $fcmToken");
 
   // Check if user is logged in and choose the page
   int page = 0;
@@ -72,7 +76,6 @@ class _MyAppPageState extends State<MainPage> {
     // Initialize the list of pages here with userData
     _pages = [
       HomePage(
-        userData: userData,
       ),
       PrescriptionPage(),
       ProfilePage(userData: userData)
