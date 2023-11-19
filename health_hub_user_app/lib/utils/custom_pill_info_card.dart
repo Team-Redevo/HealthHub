@@ -41,7 +41,7 @@ class PillInfoCard extends StatelessWidget {
                       newPrescription = values["prescriptions"][i]["prescription"].toString().split(";")[0] + ";" + values["prescriptions"][i]["prescription"].toString().split(";")[1] + ";",
                       print("Before: ${values['prescriptions'][i]['prescription']}"),
                       for (int j = 2; j < values["prescriptions"][i]["prescription"].toString().split(";").length; j++) {
-                        if(values["prescriptions"][i]["prescription"].toString().split(";").length != j) ending = ";"
+                        if(values["prescriptions"][i]["prescription"].toString().split(";").length != j-1) ending = ";"
                         else ending = "",
                         if (values["prescriptions"][i]["prescription"].toString().split(";")[j].split(",")[0] == pillName) {
                           currentIntakes = int.parse(values["prescriptions"][i]["prescription"].toString().split(";")[j].split(",")[4]) + 1,
@@ -53,12 +53,18 @@ class PillInfoCard extends StatelessWidget {
                           newPrescription += values["prescriptions"][i]["prescription"].toString().split(";")[j] + ending,
                         },
                         // delete the prescription from db
-                        /*
-                        FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
-                        Firestore.instance.collection("chats").document("ROOM_1")  
-                        .collection("messages").document(snapshot.data.documents["prescriptions"]["id"])
-                        .delete();
-                        */
+                        firestoreInstance.collection("user_id").doc("1").update({
+                          "prescriptions": FieldValue.arrayRemove([{
+                            "id": id,
+                            "prescription": values["prescriptions"][i]["prescription"]
+                          }])
+                        }),
+                        firestoreInstance.collection("user_id").doc("1").update({
+                          "prescriptions": FieldValue.arrayUnion([{
+                            "id": id,
+                            "prescription": newPrescription
+                          }])
+                        }),
                       }
                     }
                   }
