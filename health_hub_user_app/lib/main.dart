@@ -3,11 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/homepage.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:health_hub_user_app/login_page.dart';
 import 'package:health_hub_user_app/prescription_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
-import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Colors
 const Color primaryColor = Color.fromRGBO(121, 198, 152, 1);
@@ -16,41 +16,44 @@ const Color primaryTextColor = Color.fromRGBO(49, 48, 54, 1);
 const Color secondaryTextColor = Color.fromRGBO(116, 115, 120, 1);
 const Color cardBackgroundColor = Color.fromARGB(255, 239, 240, 244);
 
-// // Check if user is logged in
-// Future<Widget> pageChooser() async {
-//   return HomePage();
-// }
-
 final navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform,);
+  // Check if connection is enabled with Firebase Live DB
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await FirebaseApi().initNotifications();
+  // Noti.initialize(flutterLocalNotificationsPlugin);
 
   // Check if user is logged in and choose the page
   int page = 0;
+  Map<String, dynamic>? userData;
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('firstName', "" as String);
+  prefs.setString('lastName', "" as String);
+  prefs.setString('uniqueID', "" as String);
+  prefs.setString('tagId', "" as String);
 
   runApp(App(pageId: page));
 }
 
 class MainPage extends StatefulWidget {
-  MainPage();
+  final Map<String, Object?> userData;
+
+  MainPage(this.userData);
 
   @override
   // ignore: no_logic_in_create_state
-  State<MainPage> createState() => _MyAppPageState();
+  State<MainPage> createState() => _MyAppPageState(userData);
 }
 
 class _MyAppPageState extends State<MainPage> {
   // Variables
   int selectedIndex = 0;
+  final Map<String, Object?> userData;
 
-  _MyAppPageState();
+  _MyAppPageState(this.userData);
 
   // List of pages
   List<Widget> _pages = [];
@@ -67,7 +70,9 @@ class _MyAppPageState extends State<MainPage> {
 
     // Initialize the list of pages here with userData
     _pages = [
-      HomePage(),
+      HomePage(
+        userData: userData,
+      ),
       PrescriptionPage(),
     ];
   }
@@ -166,10 +171,10 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget page = MainPage();
+    Widget page = LoginPage();
 
     if (pageId == 0) {
-      page = MainPage();
+      page = LoginPage();
     }
 
     return MaterialApp(

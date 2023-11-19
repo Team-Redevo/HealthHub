@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:health_hub_user_app/utils/custom_prescription_info_card.dart';
 import 'package:health_hub_user_app/utils/my_submit_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main.dart';
 import 'utils/custom_pill_day_card.dart';
 
@@ -24,8 +27,55 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
 
   // sign user in method
-  void signUserIn() {
-    //BACKEND
+  void login(userId) {
+    FirebaseFirestore.instance.collection('user_id').doc(userId).get().then(
+      (DocumentSnapshot documentSnapshot) {
+        if (documentSnapshot.exists) {
+          // save user data in shared preferences
+          final prefs = SharedPreferences.getInstance();
+          prefs.then((value) {
+            value.setString('firstName', documentSnapshot['first_name']);
+            value.setString('lastName', documentSnapshot['last_name']);
+            value.setString('uniqueID', userId);
+            value.setString('tagId', documentSnapshot['tag_id']);
+          });
+
+          var userData = {
+            'first_name': documentSnapshot['first_name'],
+            'last_name': documentSnapshot['last_name'],
+            'unique_id': userId,
+            'tag_id': documentSnapshot['tag_id'],
+          };
+
+          // navigate to home page
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainPage(userData),
+            ),
+          );
+        } else {
+          // show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('CNP-ul sau parola sunt greșite!'),
+            ),
+          );
+        }
+      },
+    );
+
+    FirebaseFirestore.instance
+        .collection('userId')
+        .doc(userId)
+        .update({'is_logged': true});
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    usernameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -161,7 +211,9 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 10),
 
                 MyButton(
-                  onTap: signUserIn,
+                  onTap: () {
+                    login(usernameController.text);
+                  },
                 ),
 
                 //login button
