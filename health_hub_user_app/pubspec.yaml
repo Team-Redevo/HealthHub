@@ -54,6 +54,7 @@ dependencies:
   intl: ^0.18.1
   file_picker: ^6.1.1
   read_pdf_text: ^0.2.1
+  nfc_manager: ^3.3.0
 
 dev_dependencies:
   flutter_test:
