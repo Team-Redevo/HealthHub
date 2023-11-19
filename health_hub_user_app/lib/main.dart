@@ -6,6 +6,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:health_hub_user_app/login_page.dart';
 import 'package:health_hub_user_app/prescription_page.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:health_hub_user_app/profile_page.dart';
 import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -74,6 +75,7 @@ class _MyAppPageState extends State<MainPage> {
         userData: userData,
       ),
       PrescriptionPage(),
+      ProfilePage(userData: userData)
     ];
   }
 
