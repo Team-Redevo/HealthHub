@@ -1,125 +1,197 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:health_hub_user_app/homepage.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:health_hub_user_app/login_page.dart';
+import 'package:health_hub_user_app/prescription_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:health_hub_user_app/profile_page.dart';
+import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'lab_page.dart';
+
+// Colors
+const Color primaryColor = Color.fromRGBO(121, 198, 152, 1);
+const Color secondaryColor = Color.fromRGBO(69, 160, 150, 1);
+const Color primaryTextColor = Color.fromRGBO(49, 48, 54, 1);
+const Color secondaryTextColor = Color.fromRGBO(116, 115, 120, 1);
+const Color cardBackgroundColor = Color.fromARGB(255, 239, 240, 244);
+
+final navigatorKey = GlobalKey<NavigatorState>();
+
+Future<void> main() async {
+  // Check if connection is enabled with Firebase Live DB
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseMessaging.instance.setAutoInitEnabled(true);
+  // await FirebaseApi().initNotifications();
+  // Noti.initialize(flutterLocalNotificationsPlugin);
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print("FCMToken $fcmToken");
+
+  // Check if user is logged in and choose the page
+  int page = 0;
+  Map<String, dynamic>? userData;
+
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('firstName', "" as String);
+  prefs.setString('lastName', "" as String);
+  prefs.setString('uniqueID', "" as String);
+  prefs.setString('tagId', "" as String);
+
+  runApp(App(pageId: page));
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainPage extends StatefulWidget {
+  final Map<String, Object?> userData;
 
-  // This widget is the root of your application.
+  MainPage(this.userData);
+
+  @override
+  // ignore: no_logic_in_create_state
+  State<MainPage> createState() => _MyAppPageState(userData);
+}
+
+class _MyAppPageState extends State<MainPage> {
+  // Variables
+  int selectedIndex = 0;
+  final Map<String, Object?> userData;
+
+  _MyAppPageState(this.userData);
+
+  // List of pages
+  List<Widget> _pages = [];
+
+  // Function to change the page
+  void _onItemTapped(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
+  void initState() {
+    super.initState();
+
+    // Initialize the list of pages here with userData
+    _pages = [
+      HomePage(),
+      PrescriptionPage(),
+      LabPage(),
+      ProfilePage(userData: userData)
+    ];
+  }
+
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: Scaffold(
+        backgroundColor: Colors.white,
+
+        // The body of the page
+        body: _pages[selectedIndex],
+
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.all(7.5),
+          decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: primaryTextColor.withAlpha(30),
+                  spreadRadius: 0.25,
+                  blurRadius: 10,
+                )
+              ],
+              color: Colors.white,
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(23), topRight: Radius.circular(23))),
+          child: GNav(
+            padding: EdgeInsets.all(15),
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            gap: 5,
+            duration: const Duration(milliseconds: 400),
+            color: primaryTextColor,
+            activeColor: primaryColor,
+            tabBackgroundColor: primaryColor.withAlpha(65),
+            tabs: const [
+              GButton(
+                icon: Icons.home,
+                text: 'Home',
+                textStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
+              ),
+              GButton(
+                icon: Icons.receipt_long,
+                text: 'Prescriptions',
+                textStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
+              ),
+              GButton(
+                icon: Icons.biotech,
+                text: 'Lab Results',
+                textStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
+              ),
+              GButton(
+                icon: Icons.account_circle,
+                text: 'Profile',
+                textStyle: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  color: primaryColor,
+                ),
+                padding:
+                    EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
+              ),
+            ],
+            selectedIndex: selectedIndex,
+            onTabChange: _onItemTapped,
+          ),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class App extends StatelessWidget {
+  final int pageId;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  const App({required this.pageId});
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+    Widget page = LoginPage();
+
+    if (pageId == 0) {
+      page = LoginPage();
+    }
+
+    return MaterialApp(
+      title: 'HealthHub',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
+        useMaterial3: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      navigatorKey: navigatorKey,
+      home: page,
     );
   }
 }
