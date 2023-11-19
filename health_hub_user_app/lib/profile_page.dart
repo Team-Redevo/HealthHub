@@ -1,10 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'utils/custom_pill_day_card.dart';
 
 class ProfilePage extends StatefulWidget {
+  final Map<String, Object?> userData;
+
   const ProfilePage({
     Key? key,
+    required this.userData,
   }) : super(key: key);
 
   @override
@@ -39,45 +43,50 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 children: [
                   Container(
-                    height: 150,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(23),
                       color: cardBackgroundColor,
                     ),
-                    child: const Padding(
+                    child: Padding(
                       padding: EdgeInsets.only(left: 20, right: 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(top: 25),
+                            padding: EdgeInsets.only(top: 25, bottom: 25),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  "Surname",
-                                  style: TextStyle(
-                                    color: primaryTextColor,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                Text(
-                                  "Given name",
-                                  style: TextStyle(
-                                    color: primaryTextColor,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.normal,
-                                  ),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons
+                                          .person, // Choose the appropriate icon
+                                      color:
+                                          secondaryColor, // Customize the icon color
+                                      size: 24, // Customize the icon size
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '${widget.userData["first_name"]} ${widget.userData["last_name"]}',
+                                      style: TextStyle(
+                                        color: primaryTextColor,
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.only(top: 20),
+                                  padding: EdgeInsets.only(top: 5),
                                   child: Column(
                                     children: [
                                       Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: [
                                           Icon(
                                             Icons
@@ -89,13 +98,41 @@ class _ProfilePageState extends State<ProfilePage> {
                                           SizedBox(
                                               width:
                                                   8), // Adjust the space between the icon and text
-                                          Text(
-                                            "Blood type: A+",
-                                            style: TextStyle(
-                                              color: primaryTextColor,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          FutureBuilder<DocumentSnapshot>(
+                                            future: FirebaseFirestore.instance
+                                                .collection('user_id')
+                                                .doc(
+                                                    '${widget.userData['unique_id']}')
+                                                .get(),
+                                            builder: (context, snapshot) {
+                                              // Check if the Future is complete
+                                              if (snapshot.connectionState ==
+                                                  ConnectionState.done) {
+                                                // Check if there is data
+                                                if (snapshot.hasData) {
+                                                  // Display the data in a Text widget
+                                                  return Text(
+                                                    'Blood type: ' +
+                                                        snapshot
+                                                            .data!['blood_type']
+                                                            .toString(),
+                                                    style: TextStyle(
+                                                      color: primaryTextColor,
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  );
+                                                } else if (snapshot.hasError) {
+                                                  // Display an error message if the Future completes with an error
+                                                  return Text(
+                                                      'Error: ${snapshot.error}');
+                                                }
+                                              }
+
+                                              // By default, show a loading indicator
+                                              return CircularProgressIndicator();
+                                            },
                                           ),
                                         ],
                                       ),
@@ -114,8 +151,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 25),
                     child: Container(
-                      height: 125,
-                      alignment: Alignment.topCenter,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(23),
                         color: cardBackgroundColor,
@@ -125,11 +160,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 15),
+                                  padding: const EdgeInsets.only(
+                                      top: 15, bottom: 15),
                                   child: Container(
                                     height: 75,
                                     width: 75,
@@ -147,41 +183,75 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 15),
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Padding(
-                                        padding:
-                                            EdgeInsets.only(top: 23, right: 50),
-                                        child: Column(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                // Adjust the space between the icon and text
-                                                Text(
-                                                  "Allergies",
-                                                  style: TextStyle(
-                                                    color: primaryTextColor,
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                      Text(
+                                        "Allergies",
+                                        style: TextStyle(
+                                          color: primaryTextColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                      ),
+                                      FutureBuilder<DocumentSnapshot>(
+                                        future: FirebaseFirestore.instance
+                                            .collection('user_id')
+                                            .doc(
+                                                '${widget.userData['unique_id']}')
+                                            .get(),
+                                        builder: (context, snapshot) {
+                                          // Check if the Future is complete
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.done) {
+                                            // Check if there is data
+                                            String textList = "";
+                                            if (snapshot.hasData) {
+                                              for (int i = 0;
+                                                  i <
+                                                      snapshot
+                                                          .data!['id_allergies']
+                                                          .length;
+                                                  i++) {
+                                                if (i == 0) {
+                                                  textList = snapshot
+                                                      .data!['id_allergies'][i];
+                                                } else {
+                                                  textList = textList +
+                                                      "\n" +
+                                                      snapshot.data![
+                                                          'id_allergies'][i];
+                                                }
+                                              }
+                                              return Text(
+                                                textList,
+                                                style: TextStyle(
+                                                  color: primaryTextColor,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              );
+                                              // Display the data in a Text widget
+                                            } else if (snapshot.hasError) {
+                                              // Display an error message if the Future completes with an error
+                                              return Text(
+                                                  'Error: ${snapshot.error}');
+                                            }
+                                          }
+
+                                          // By default, show a loading indicator
+                                          return CircularProgressIndicator();
+                                        },
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
-                            const Icon(Icons.expand_more,
-                                color: secondaryTextColor, size: 30),
                           ],
                         ),
                       ),
@@ -190,8 +260,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   Padding(
                     padding: const EdgeInsets.only(top: 25),
                     child: Container(
-                      height: 125,
-                      alignment: Alignment.topCenter,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(23),
                         color: cardBackgroundColor,
@@ -201,11 +269,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.only(top: 15),
+                                  padding: const EdgeInsets.only(
+                                      top: 15, bottom: 15),
                                   child: Container(
                                     height: 75,
                                     width: 75,
@@ -223,46 +292,76 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   ),
                                 ),
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 15),
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
                                   child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 23),
-                                        child: Column(
-                                          children: [
-                                            Row(
-                                              children: [
-                                                // Adjust the space between the icon and text
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 5, right: 5),
-                                                  child: Text(
-                                                    "Contraindications",
-                                                    style: TextStyle(
-                                                      color: primaryTextColor,
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                    softWrap: true,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                      Text(
+                                        "Contraindications",
+                                        style: TextStyle(
+                                          color: primaryTextColor,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
                                         ),
+                                      ),
+                                      FutureBuilder<DocumentSnapshot>(
+                                        future: FirebaseFirestore.instance
+                                            .collection('user_id')
+                                            .doc(
+                                                '${widget.userData['unique_id']}')
+                                            .get(),
+                                        builder: (context, snapshot) {
+                                          // Check if the Future is complete
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.done) {
+                                            // Check if there is data
+                                            String textList = "";
+                                            if (snapshot.hasData) {
+                                              for (int i = 0;
+                                                  i <
+                                                      snapshot
+                                                          .data![
+                                                              'drugs_contradictions']
+                                                          .length;
+                                                  i++) {
+                                                if (i == 0) {
+                                                  textList = snapshot.data![
+                                                      'drugs_contradictions'][i];
+                                                } else {
+                                                  textList = textList +
+                                                      "\n" +
+                                                      snapshot.data![
+                                                          'drugs_contradictions'][i];
+                                                }
+                                              }
+                                              return Text(
+                                                textList,
+                                                style: TextStyle(
+                                                  color: primaryTextColor,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              );
+                                              // Display the data in a Text widget
+                                            } else if (snapshot.hasError) {
+                                              // Display an error message if the Future completes with an error
+                                              return Text(
+                                                  'Error: ${snapshot.error}');
+                                            }
+                                          }
+
+                                          // By default, show a loading indicator
+                                          return CircularProgressIndicator();
+                                        },
                                       ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
-                            const Icon(Icons.expand_more,
-                                color: secondaryTextColor, size: 30),
                           ],
                         ),
                       ),
