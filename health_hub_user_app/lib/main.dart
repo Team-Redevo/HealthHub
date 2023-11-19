@@ -11,6 +11,8 @@ import 'firebase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+import 'lab_page.dart';
+
 // Colors
 const Color primaryColor = Color.fromRGBO(121, 198, 152, 1);
 const Color secondaryColor = Color.fromRGBO(69, 160, 150, 1);
@@ -75,9 +77,9 @@ class _MyAppPageState extends State<MainPage> {
 
     // Initialize the list of pages here with userData
     _pages = [
-      HomePage(
-      ),
+      HomePage(),
       PrescriptionPage(),
+      LabPage(),
       ProfilePage(userData: userData)
     ];
   }
