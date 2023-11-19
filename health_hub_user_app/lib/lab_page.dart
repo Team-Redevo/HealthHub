@@ -2,7 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:flutter/services.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class LabPage extends StatefulWidget {
   const LabPage({
@@ -197,11 +201,19 @@ class _LabPageState extends State<LabPage> {
         Visibility(
           visible: isCtVisible,
           child: Column(children: [
-            Text('Computed Tomography',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: primaryTextColor,
-                    fontWeight: FontWeight.bold)),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ImageLabelling()),
+                );
+              },
+              child: Text('Computed Tomography',
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: primaryTextColor,
+                      fontWeight: FontWeight.bold)),
+            ),
             SizedBox(height: 10),
           ]),
         ),
@@ -240,5 +252,113 @@ class _LabPageState extends State<LabPage> {
         ),
       ]),
     ));
+  }
+}
+
+class ImageLabelling extends StatefulWidget {
+  const ImageLabelling({Key? key}) : super(key: key);
+
+  @override
+  _ImageLabellingState createState() => _ImageLabellingState();
+}
+
+Future<String> getModelPath(String asset) async {
+  final path = '${(await getApplicationSupportDirectory()).path}/$asset';
+  await Directory(dirname(path)).create(recursive: true);
+  final file = File(path);
+  if (!await file.exists()) {
+    final byteData = await rootBundle.load(asset);
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+  }
+  return file.path;
+}
+
+class _ImageLabellingState extends State<ImageLabelling> {
+  late InputImage _inputImage;
+  File? _pickedImage;
+
+  final ImagePicker _imagePicker = ImagePicker();
+
+  String text = "";
+
+  pickImageFromGallery() async {
+    XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      return;
+    }
+
+    setState(() {
+      _pickedImage = File(image.path);
+    });
+    _inputImage = InputImage.fromFile(_pickedImage!);
+    identifyImage(_inputImage);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            Text('Image Labelling'),
+            if (_pickedImage != null)
+              Image.file(
+                _pickedImage!,
+                height: 300,
+                width: double.infinity,
+                fit: BoxFit.contain,
+              )
+            else
+              Container(
+                height: 300,
+                color: Colors.black,
+                width: double.infinity,
+              ),
+            Expanded(
+              child: Container(),
+            ),
+            Text(text, style: TextStyle(fontSize: 20)),
+            Expanded(child: Container()),
+            Container(
+              padding: EdgeInsets.all(16),
+              width: double.infinity,
+              child: ElevatedButton(
+                child: Text("Pick Image"),
+                onPressed: () {
+                  pickImageFromGallery();
+                },
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void identifyImage(InputImage inputImage) async {
+    final modelPath = await getModelPath('assets/modelCT2.tflite');
+    print(modelPath);
+    final _options = LocalLabelerOptions(
+      confidenceThreshold: 0.8,
+      modelPath: modelPath,
+    );
+    final imageLabeler = ImageLabeler(options: _options);
+    final List<ImageLabel> image = await imageLabeler.processImage(inputImage);
+
+    if (image.isEmpty) {
+      setState(() {
+        text = "Cannot identify the image";
+      });
+      return;
+    }
+
+    for (ImageLabel img in image) {
+      setState(() {
+        text = "Label: ${img.label}, Confidence: ${img.confidence}";
+      });
+    }
+
+    imageLabeler.close();
   }
 }
