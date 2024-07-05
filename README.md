@@ -6,7 +6,7 @@
 
 ## Authors
 
-HealthHub is developed by Spiescu Claudiu, Nenciu David, Barbu Bogdan-Florin
+HealthHub is developed by Spiescu Claudiu, Nenciu David, Barbu Bogdan-Florin, David Patrik and Parvan Stefan Daniel
 
 ## Table of Contents
 
