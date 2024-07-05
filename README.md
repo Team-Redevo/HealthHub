@@ -4,6 +4,9 @@
 <img src="logoHealthHub.png" alt="HealthHub Logo" width="200"/>
 </div>
 
+## Authors
+
+HealthHub is developed by Spiescu Claudiu, Nenciu David, Barbu Bogdan-Florin
 
 ## Table of Contents
 
